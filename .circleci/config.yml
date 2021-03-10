@@ -1,0 +1,46 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: rust:latest
+    steps:
+      - checkout
+      - restore_cache:
+          key: build-cache
+      - run:
+          name: install rustfmt
+          command: rustup component add rustfmt
+      - run:
+          name: check formatting
+          command: cargo fmt -- --check
+      - run:
+          name: build stable
+          command: cargo build
+      - run:
+          name: test
+          command: cargo test
+      - save_cache:
+          key: build-cache
+          paths:
+            - "~/.cargo"
+            - "./target"
+
+  coverage:
+    docker:
+      - image: xd009642/tarpaulin:develop-nightly
+    steps:
+      - checkout
+      - restore_cache:
+          key: coverage-cache
+      - run:
+          name: compute coverage
+          command: cargo tarpaulin --out Xml
+      - run:
+          name: publish result
+          command: curl -s https://codecov.io/bash | bash
+      - save_cache:
+          key: coverage-cache
+          paths:
+            - "~/.cargo"
+            - "./target"

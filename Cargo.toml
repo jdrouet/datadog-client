@@ -1,0 +1,20 @@
+[package]
+name = "datadog-client"
+description = "Client for the datadog's API"
+license = "Apache-2.0"
+version = "0.1.0"
+authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
+edition = "2018"
+repository = "https://github.com/jdrouet/datadog-client"
+readme = "readme.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "^0.11", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "^1", features = ["derive"] }
+serde_json = { version = "^1" }
+tokio = { version = "^1", features = ["full"] }
+
+[dev-dependencies]
+mockito = "^0.29"
