@@ -1,4 +1,4 @@
-# Datadog Client API writter in Rust
+# Datadog Client API written in Rust
 
 This is implementing the following endpoints. If you need more, open an issue or pull requests are welcome!
 

@@ -68,8 +68,10 @@ impl Serialize for Point {
 #[derive(Debug, Clone, Serialize)]
 pub struct Serie {
     // The name of the host that produced the metric.
+    #[serde(skip_serializing_if = "Option::is_none")]
     host: Option<String>,
     // If the type of the metric is rate or count, define the corresponding interval.
+    #[serde(skip_serializing_if = "Option::is_none")]
     interval: Option<i64>,
     // The name of the timeseries.
     metric: String,
@@ -79,6 +81,7 @@ pub struct Serie {
     // A list of tags associated with the metric.
     tags: Vec<String>,
     // The type of the metric either count, gauge, or rate.
+    #[serde(rename = "type")]
     dtype: Type,
 }
 
@@ -146,6 +149,18 @@ mod tests {
     fn serialize_point() {
         let point = Point::new(1234, 12.34);
         assert_eq!(serde_json::to_string(&point).unwrap(), "[1234,12.34]");
+    }
+
+    #[test]
+    fn serialize_serie() {
+        let serie = Serie::new("metric", Type::Count)
+            .add_point(Point::new(1234, 1.234))
+            .add_tag(String::from("tag"))
+            .set_host("host");
+        assert_eq!(
+            serde_json::to_string(&serie).unwrap(),
+            "{\"host\":\"host\",\"metric\":\"metric\",\"points\":[[1234,1.234]],\"tags\":[\"tag\"],\"type\":\"count\"}"
+        );
     }
 
     #[tokio::test]
