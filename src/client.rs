@@ -1,6 +1,7 @@
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug)]
 pub enum Error {
     Reqwest(reqwest::Error),
     Body(StatusCode, Vec<String>),
