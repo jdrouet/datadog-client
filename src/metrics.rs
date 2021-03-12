@@ -133,6 +133,10 @@ impl Serie {
 }
 
 impl Client {
+    /// Submit metrics
+    ///
+    /// https://docs.datadoghq.com/api/latest/metrics/#submit-metrics
+    ///
     pub async fn post_metrics(&self, series: &[Serie]) -> Result<(), Error> {
         let payload = serde_json::json!({ "series": series });
         self.post("/api/v1/series", &payload).await
