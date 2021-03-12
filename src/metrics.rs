@@ -2,30 +2,12 @@ use crate::client::{Client, Error};
 use serde::ser::SerializeSeq;
 use serde::{Serialize, Serializer};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Type {
     Count,
     Gauge,
     Rate,
-}
-
-impl Type {
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::Count => "count",
-            Self::Gauge => "gauge",
-            Self::Rate => "rate",
-        }
-    }
-}
-
-impl Serialize for Type {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
 }
 
 #[derive(Clone, Debug)]
