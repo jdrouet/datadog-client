@@ -128,7 +128,6 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::Config;
     use mockito::mock;
 
     #[test]
@@ -152,10 +151,7 @@ mod tests {
     #[tokio::test]
     async fn post_metrics_success() {
         let call = mock("POST", "/api/v1/series").with_status(202).create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let series = vec![Serie::new("something", Type::Gauge).add_point(Point::new(1234, 12.34))];
         let result = client.post_metrics(&series).await;
         assert!(result.is_ok());
@@ -168,10 +164,7 @@ mod tests {
             .with_status(403)
             .with_body("{\"errors\":[\"Authentication error\"]}")
             .create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let series = vec![Serie::new("something", Type::Gauge).add_point(Point::new(1234, 12.34))];
         let result = client.post_metrics(&series).await;
         assert!(result.is_err());

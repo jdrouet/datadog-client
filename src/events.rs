@@ -157,16 +157,12 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::Config;
     use mockito::mock;
 
     #[tokio::test]
     async fn post_metrics_success() {
         let call = mock("POST", "/api/v1/events").with_status(202).create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let event = CreateEventPayload::new(
             String::from("Some Event Title"),
             String::from("Some event text"),
@@ -183,10 +179,7 @@ mod tests {
             .with_status(403)
             .with_body("{\"errors\":[\"Authentication error\"]}")
             .create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let event = CreateEventPayload::new(
             String::from("Some Event Title"),
             String::from("Some event text"),

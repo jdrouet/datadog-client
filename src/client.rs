@@ -18,35 +18,26 @@ struct BodyError {
     errors: Vec<String>,
 }
 
-pub struct Config {
+#[derive(Clone, Debug)]
+pub struct Client {
     host: String,
     api_key: String,
 }
 
-impl Config {
+impl Client {
     pub fn new(host: String, api_key: String) -> Self {
         Self { host, api_key }
-    }
-}
-
-pub struct Client {
-    config: Config,
-}
-
-impl Client {
-    pub fn new(config: Config) -> Self {
-        Self { config }
     }
 }
 
 impl Client {
     pub async fn post<T: Serialize>(&self, path: &str, payload: &T) -> Result<(), Error> {
         let client = reqwest::Client::new();
-        let url = format!("{}{}", self.config.host, path);
+        let url = format!("{}{}", self.host, path);
         let response = client
             .post(url.as_str())
             .header("Content-Type", "application/json")
-            .header("DD-API-KEY", self.config.api_key.as_str())
+            .header("DD-API-KEY", self.api_key.as_str())
             .json(payload)
             .send()
             .await?;
@@ -63,16 +54,12 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::Config;
     use mockito::mock;
 
     #[tokio::test]
     async fn post_success() {
         let call = mock("POST", "/somewhere").with_status(202).create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let result = client
             .post("/somewhere", &String::from("Hello World!"))
             .await;
@@ -86,10 +73,7 @@ mod tests {
             .with_status(403)
             .with_body("{\"errors\":[\"Authentication error\"]}")
             .create();
-        let client = Client::new(Config::new(
-            mockito::server_url(),
-            String::from("fake-api-key"),
-        ));
+        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
         let result = client
             .post("/somewhere", &String::from("Hello World!"))
             .await;
