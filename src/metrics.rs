@@ -39,13 +39,13 @@ impl Serialize for Point {
 /// ```
 /// use datadog_client::metrics::{Point, Serie, Type};
 ///
-/// let serie = Serie::new("cpu.usage", Type::Gauge)
-///     .set_host("raspberrypi")
+/// let serie = Serie::new("cpu.usage".to_string(), Type::Gauge)
+///     .set_host("raspberrypi".to_string())
 ///     .set_interval(42)
 ///     .set_points(vec![])
 ///     .add_point(Point::new(123456, 12.34))
 ///     .set_tags(vec![])
-///     .add_tag(String::from("whatever:tag"));
+///     .add_tag("whatever:tag".to_string());
 /// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct Serie {
@@ -68,11 +68,11 @@ pub struct Serie {
 }
 
 impl Serie {
-    pub fn new(metric: &str, dtype: Type) -> Self {
+    pub fn new(metric: String, dtype: Type) -> Self {
         Self {
             host: None,
             interval: None,
-            metric: metric.to_string(),
+            metric,
             points: Vec::new(),
             tags: Vec::new(),
             dtype,
@@ -81,8 +81,8 @@ impl Serie {
 }
 
 impl Serie {
-    pub fn set_host(mut self, host: &str) -> Self {
-        self.host = Some(host.to_string());
+    pub fn set_host(mut self, host: String) -> Self {
+        self.host = Some(host);
         self
     }
 
@@ -100,9 +100,7 @@ impl Serie {
         self.points.push(point);
         self
     }
-}
 
-impl Serie {
     pub fn set_tags(mut self, tags: Vec<String>) -> Self {
         self.tags = tags;
         self
@@ -138,10 +136,10 @@ mod tests {
 
     #[test]
     fn serialize_serie() {
-        let serie = Serie::new("metric", Type::Count)
+        let serie = Serie::new("metric".to_string(), Type::Count)
             .add_point(Point::new(1234, 1.234))
-            .add_tag(String::from("tag"))
-            .set_host("host");
+            .add_tag("tag".to_string())
+            .set_host("host".to_string());
         assert_eq!(
             serde_json::to_string(&serie).unwrap(),
             "{\"host\":\"host\",\"metric\":\"metric\",\"points\":[[1234,1.234]],\"tags\":[\"tag\"],\"type\":\"count\"}"
@@ -151,8 +149,10 @@ mod tests {
     #[tokio::test]
     async fn post_metrics_success() {
         let call = mock("POST", "/api/v1/series").with_status(202).create();
-        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
-        let series = vec![Serie::new("something", Type::Gauge).add_point(Point::new(1234, 12.34))];
+        let client = Client::new(mockito::server_url(), "fake-api-key".to_string());
+        let series = vec![
+            Serie::new("something".to_string(), Type::Gauge).add_point(Point::new(1234, 12.34))
+        ];
         let result = client.post_metrics(&series).await;
         assert!(result.is_ok());
         call.expect(1);
@@ -164,8 +164,10 @@ mod tests {
             .with_status(403)
             .with_body("{\"errors\":[\"Authentication error\"]}")
             .create();
-        let client = Client::new(mockito::server_url(), String::from("fake-api-key"));
-        let series = vec![Serie::new("something", Type::Gauge).add_point(Point::new(1234, 12.34))];
+        let client = Client::new(mockito::server_url(), "fake-api-key".to_string());
+        let series = vec![
+            Serie::new("something".to_string(), Type::Gauge).add_point(Point::new(1234, 12.34))
+        ];
         let result = client.post_metrics(&series).await;
         assert!(result.is_err());
         call.expect(1);
