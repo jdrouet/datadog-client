@@ -5,7 +5,7 @@ license = "Apache-2.0"
 version = "0.2.0"
 authors = ["Jérémie Drouet <jeremie.drouet@gmail.com>"]
 edition = "2018"
-repository = "https://github.com/jdrouet/datadog-client"
+repository = "https://github.com/jdrouet/datadog-client-rust"
 readme = "readme.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
